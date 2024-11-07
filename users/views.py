@@ -80,6 +80,12 @@ class BlockUserView(LoginRequiredMixin, View):
         return redirect("users:user_list")
 
 
+def generate_random_password(length: int = 12) -> str:
+    """Генерирует случайный пароль заданной длины."""
+    # Увеличена длина пароля до 12 символов для большей безопасности.
+    alphabet = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
+
 class PasswordResetView(View):
     def get(self, request):
         return render(request, "users/password_reset.html")
@@ -88,9 +94,8 @@ class PasswordResetView(View):
         email = request.POST.get("email")
         try:
             user = CustomsUser.objects.get(email=email)
-            new_password = "".join(
-                secrets.choice(string.ascii_letters + string.digits + string.punctuation) for i in range(12)
-            )  # 12 символов, включая пунктуацию
+            new_password = generate_random_password()
+              # 12 символов, включая пунктуацию
             user.password = make_password(new_password)
             user.save()
             send_mail(

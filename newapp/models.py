@@ -5,10 +5,10 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import BooleanField
 
-from newapp.utils.logger import setup_logging
+
 from users.models import CustomsUser
 
-setup_logging()
+logger = logging.getLogger(__name__)
 
 
 class MailingRecipient(models.Model):
@@ -131,11 +131,3 @@ class UserMailingStatistics(models.Model):
         return f"Statistics for {self.user.username}"
 
 
-class StyleFormMixin:
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for fild_name, fild in self.fields.items():
-            if isinstance(fild, BooleanField):
-                fild.widget.attrs["class"] = "form-check-input"
-            else:
-                fild.widget.attrs["class"] = "form-control"

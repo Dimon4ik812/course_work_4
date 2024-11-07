@@ -129,11 +129,13 @@ AUTH_USER_MODEL = 'users.CustomsUser'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
-EMAIL_HOST_USER = 'Poxxyuct812@yandex.ru'
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS').lower() == 'true'
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL').lower() == 'true'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
 
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
@@ -148,6 +150,25 @@ if CACHE_ENABLED:
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-            'LOCATION': 'redis://127.0.0.1:6379/1',
+            'LOCATION': os.getenv('REDIS_URL'),
         }
     }
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/tmp/app.log', # или другой путь
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

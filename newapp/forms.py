@@ -1,7 +1,17 @@
 from django import forms
+from django.forms import BooleanField
 
-from newapp.models import Message, Newsletter, StyleFormMixin
+from newapp.models import Message, Newsletter
 
+
+class StyleFormMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for fild_name, fild in self.fields.items():
+            if isinstance(fild, BooleanField):
+                fild.widget.attrs["class"] = "form-check-input"
+            else:
+                fild.widget.attrs["class"] = "form-control"
 
 class MessageForm(forms.ModelForm):
     class Meta:
@@ -22,24 +32,6 @@ class MessageForm(forms.ModelForm):
             {"class": "form-control", "placeholder": "Введите описание продукта"}
         )
 
-    def clean(self):
-        cleaned_data = super().clean()
-        name = cleaned_data.get("subject")
-        description = cleaned_data.get("body_of_the_letter")
-
-        if name.lower() and description.lower() in [
-            "казино",
-            "криптовалюта",
-            "крипта",
-            "биржа",
-            "дешево",
-            "бесплатно",
-            "обман",
-            "полиция",
-            "радар",
-        ]:
-            self.add_error("name", "запрещенное слово")
-            self.add_error("description", "запрещенное слово")
 
 
 class NewsletterForm(StyleFormMixin, forms.ModelForm):
@@ -50,3 +42,5 @@ class NewsletterForm(StyleFormMixin, forms.ModelForm):
             "is_blocked",
             "success",
         )
+
+

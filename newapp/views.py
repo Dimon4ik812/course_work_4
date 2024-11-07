@@ -9,6 +9,7 @@ from django.views import View
 from django.views.generic import DeleteView, DetailView, ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
+from config.settings import EMAIL_HOST_USER
 from newapp.forms import MessageForm, NewsletterForm
 from newapp.models import MailingAttempt, MailingRecipient, Message, Newsletter, UserMailingStatistics
 from newapp.services import get_recipient_from_cache
@@ -108,7 +109,7 @@ class MessageUpdateView(UpdateView):
 
 
 class MessageDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Message  # Убедитесь, что model правильно указан как Message
+    model = Message
     template_name = "newapp/message_delete.html"
     success_url = reverse_lazy("newapp:message_list")
 
@@ -209,7 +210,7 @@ class SendNewsletterView(View):
 
         # Создание попытки рассылки и СОХРАНЕНИЕ
         attempt = MailingAttempt(newsletter=newsletter, owner=request.user)
-        attempt.save()  # Сохраняем здесь!
+        attempt.save()
 
         successful_recipients = []
         responses = []
@@ -219,7 +220,7 @@ class SendNewsletterView(View):
                 send_mail(
                     newsletter.message.subject,
                     newsletter.message.body_of_the_letter,
-                    "Poxxyuct812@yandex.ru",  # Замените на Ваш email
+                    EMAIL_HOST_USER,
                     [recipient.email],
                     fail_silently=False,
                 )
