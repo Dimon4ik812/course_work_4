@@ -1,0 +1,65 @@
+{% extends 'newapp/base.html'%}
+{% block content %}
+
+<main class="container">
+  <div class="starter-template text-center py-5 px-3 mt-5">
+
+    <h1>Список рассылок</h1>
+    <table class="table mt-5">
+      <thead>
+        <tr>
+          <th scope="col">id</th>
+          <th scope="col">Получатели</th>
+          <th scope="col">Сообщение</th>
+          <th scope="col">Статус</th>
+          <th scope="col">Дата первой отправки</th>
+          <th scope="col">Дата окончания отправки</th>
+          <th scope="col">Владелец рассылки</th>
+          <th scope="col">Разрешение</th>
+          <th scope="col">Управление</th>
+        </tr>
+      </thead>
+      {% for newapp in newapps %}
+       {% if user == newapp.owner or user.is_staff or perms.newapp.can_view_all_mailings %}
+      <tbody>
+        <tr>
+          <th scope="row">{{ newapp.id }}</th>
+          <td>{{ newapp.recipients.all|join:", " }}</td>
+          <td>{{ newapp.message }}</td>
+          <td>{{ newapp.status }}</td>
+          <td>{{ newapp.sent_date }}</td>
+          <td>{{ newapp.end_of_sending }}</td>
+          <td>{{ newapp.owner}}</td>
+          <td>
+            {% if mailing.is_blocked %}
+                        Заблокировано
+                    {% else %}
+                        Разблокировано
+                    {% endif %}</td>
+          <td>
+            {% if user == newapp.owner %}
+            <a href="{% url 'newapp:newsletter_detail' newapp.id %}" class="btn btn-primary">посмотреть</a>
+            <a href="{% url 'newapp:newsletter_update' newapp.id %}" class="btn btn-primary">редактировать</a>
+            {% if user == newapp.owner or user.is_staff %}
+            <!-- Добавлено обертывание в форму для отправки POST-запроса -->
+            <form action="{% url 'newapp:send_newsletter' newapp.pk %}" method="POST" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary">отправить рассылку</button>
+            </form>
+            {% endif %}
+            <a href="{% url 'newapp:newsletter_delete' newapp.id %}" class="btn btn-danger">удалить</a>
+            {% else %}
+            <a href="{% url 'newapp:newsletter_detail' newapp.id %}" class="btn btn-primary">посмотреть</a>
+            {% endif %}
+          </td>
+        </tr>
+      </tbody>
+      {% endif %}
+      {% endfor %}
+    </table>
+    <div class="d-flex justify-content-end mt-5">
+      <a href="{% url 'newapp:newsletter_create' %}" class="btn btn-primary">Создать рассылку</a>
+    </div>
+  </div>
+</main>
+{% endblock %}

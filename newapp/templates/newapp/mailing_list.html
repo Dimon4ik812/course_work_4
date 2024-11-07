@@ -1,0 +1,47 @@
+{% extends 'newapp/base.html'%}
+{% block content %}
+
+<main class="container">
+
+  <div class="starter-template text-center py-5 px-3 mt-5">
+
+
+    <h1>Список получателей</h1>
+    <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">id</th>
+      <th scope="col">ФИО</th>
+      <th scope="col">Электронная почта</th>
+      <th scope="col">Комментарии</th>
+      <th scope="col">Управление</th>
+    </tr>
+  </thead>
+        {% for newapp in newapps %}
+          {% if user == newapp.owner or user.is_staff or perms.newapp.can_view_all_mailingrecipient %}
+  <tbody>
+    <tr>
+      <th scope="row">{{ newapp.id }}</th>
+      <td>{{ newapp.full_name }}</td>
+      <td>{{ newapp.email }}</td>
+      <td>{{ newapp.comment }}</td>
+        {% if user == newapp.owner or perms.newapp.can_view_all_mailingrecipient%}
+        <td>
+            <a href="{% url 'newapp:MailingRecipient_detail' newapp.id %}" class="btn btn-primary">посмотреть</a>
+            <a href="{% url 'newapp:MailingRecipient_update' newapp.id %}" class="btn btn-primary">редактировать</a>
+            <a href="{% url 'newapp:MailingRecipient_delete' newapp.id %}" class="btn btn-danger">удалить</a>
+        </td>
+        {% else %}
+        <td>
+        <a href="{% url 'newapp:MailingRecipient_detail' newapp.id %}" class="btn btn-primary">посмотреть</a>
+        <td>
+    </tr>
+  </tbody>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+</table>
+<div class="d-flex justify-content-end mt-5">
+    <a href="{% url 'newapp:MailingRecipient_create' %}" class="btn btn-primary">Добавить получателя</a>
+</div>
+{% endblock %}

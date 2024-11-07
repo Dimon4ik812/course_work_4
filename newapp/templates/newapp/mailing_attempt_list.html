@@ -1,0 +1,39 @@
+{% extends 'newapp/base.html'%}
+{% block content %}
+
+<main class="container">
+  <div class="starter-template text-center py-5 px-3 mt-5">
+    <h1>Список попыток</h1>
+    <table class="table mt-5">
+      <thead>
+        <tr>
+          <th scope="col">id</th>
+          <th scope="col">Получатели</th>
+          <th scope="col">Ответ сервера</th>
+          <th scope="col">Статус</th>
+          <th scope="col">дата запуска</th>
+        </tr>
+      </thead>
+      {% for newapp in newapps %}
+        {% if user == newapp.owner or user.is_staff or perms.newapp.can_view_all_mailings_attempts %}
+      <tbody>
+        <tr>
+          <th scope="row">{{ newapp.id }}</th>
+          <td>{{ newapp.recipients.all|join:", " }}</td>
+          <td>{{ newapp.Mail_server_response}}</td>
+          <td>{{ newapp.status}}</td>
+          <td>{{ newapp.Date_and_time_of_attempt}}</td>
+        </tr>
+      </tbody>
+      {% endif %}
+      {% endfor %}
+    </table>
+    <div class="clear-button-container">  <!-- Добавлен div с классом -->
+      <form action="{% url 'newapp:clear_mailing_attempts' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Очистить список рассылок</button>
+      </form>
+    </div>
+  </div>
+</main>
+{% endblock %}
