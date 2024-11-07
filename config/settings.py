@@ -161,7 +161,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '/tmp/app.log', # или другой путь
+            'filename': './app.log',
         },
     },
     'loggers': {
