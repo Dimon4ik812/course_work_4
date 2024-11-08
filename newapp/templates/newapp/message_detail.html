@@ -1,0 +1,14 @@
+{% extends 'newapp/base.html'%}
+{% load my_tags %}
+{% block content %}
+    <div class="card text-center custom-margin">
+      <div class="card-header">
+        {{ newapp.subject }}
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">{{ newapp.subject }}</h5>
+        <p class="card-text">{{ newapp.body_of_the_letter}}</p>
+        <a href="{% url 'newapp:message_list' %}" class="btn btn-primary">Вернуться</a>
+      </div>
+    </div>
+{% endblock %}

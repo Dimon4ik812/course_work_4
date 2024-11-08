@@ -1,0 +1,39 @@
+{% extends 'newapp/base.html'%}
+{% block content %}
+
+<main class="container">
+
+  <div class="starter-template text-center py-5 px-3 mt-5">
+
+
+    <h1>Список сообщений</h1>
+    <table class="table mt-5">
+  <thead>
+    <tr>
+      <th scope="col">id</th>
+      <th scope="col">Тема</th>
+      <th scope="col">Сообщение</th>
+      <th scope="col">Управление</th>
+    </tr>
+  </thead>
+        {% for newapp in newapps %}
+  <tbody>
+    <tr>
+      <th scope="row">{{ newapp.id }}</th>
+      <td>{{ newapp.subject }}</td>
+      <td>{{ newapp.body_of_the_letter}}</td>
+        <td>
+            <a href="{% url 'newapp:message_detail' newapp.id %}" class="btn btn-primary">прочитать</a>
+            {% if user == newapp.owner %}
+            <a href="{% url 'newapp:message_update' newapp.id %}" class="btn btn-primary">редактировать</a>
+            <a href="{% url 'newapp:message_delete' newapp.id %}" class="btn btn-danger">удалить</a>
+            {% endif %}
+        </td>
+    </tr>
+  </tbody>
+        {% endfor %}
+</table>
+<div class="d-flex justify-content-end mt-5">
+    <a href="{% url 'newapp:message_create' %}" class="btn btn-primary">Создать сообщение</a>
+</div>
+{% endblock %}

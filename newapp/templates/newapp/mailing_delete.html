@@ -1,0 +1,13 @@
+{% extends 'newapp/base.html'%}
+{% load my_tags %}
+{% block content %}
+<div class="container mt-5">
+        <h1 class="mb-4 custom-margin">Удалить получателя </h1>
+        <p>Вы уверены, что хотите удалить "{{ object.title }}"?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Удалить</button>
+            <a href="{% url 'newapp:home' %}" class="btn btn-secondary">Отмена</a>
+        </form>
+    </div>
+{% endblock %}
