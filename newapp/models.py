@@ -61,7 +61,7 @@ class Newsletter(models.Model):
     recipients = models.ManyToManyField(MailingRecipient, verbose_name="Получатели")
     owner = models.ForeignKey(CustomsUser, verbose_name="Владелец", blank=True, null=True, on_delete=models.SET_NULL)
     is_blocked = models.BooleanField(default=False)
-    success = models.BooleanField(default=False)
+
 
     def __str__(self):
         return f"Рассылка с {self.recipients.count()} получателями"
