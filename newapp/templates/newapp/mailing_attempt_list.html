@@ -20,9 +20,9 @@
         <tr>
           <th scope="row">{{ newapp.id }}</th>
           <td>{{ newapp.recipients.all|join:", " }}</td>
-          <td>{{ newapp.Mail_server_response}}</td>
+          <td>{{ newapp.mail_server_response}}</td>
           <td>{{ newapp.status}}</td>
-          <td>{{ newapp.Date_and_time_of_attempt}}</td>
+          <td>{{ newapp.date_and_time_of_attempt}}</td>
         </tr>
       </tbody>
       {% endif %}

@@ -9,7 +9,7 @@ from django.views import View
 from django.views.generic import DeleteView, DetailView, ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
-from config.settings import EMAIL_HOST_USER
+from config import settings
 from newapp.forms import MessageForm, NewsletterForm
 from newapp.models import MailingAttempt, MailingRecipient, Message, Newsletter, UserMailingStatistics
 from newapp.services import get_recipient_from_cache
@@ -202,17 +202,18 @@ class MailingAttemptListView(ListView):
     context_object_name = "newapps"
 
 
+
 @method_decorator(login_required, name="dispatch")
 class SendNewsletterView(View):
     def post(self, request, pk):
         newsletter = get_object_or_404(Newsletter, pk=pk)
         recipients = newsletter.recipients.all()
 
-        # Создание попытки рассылки и СОХРАНЕНИЕ
-        attempt = MailingAttempt(newsletter=newsletter, owner=request.user)
-        attempt.save()
+        # Создание попытки рассылки
+        attempt = MailingAttempt.objects.create(newsletter=newsletter, owner=request.user)
 
         successful_recipients = []
+        failed_recipients = []
         responses = []
 
         for recipient in recipients:
@@ -220,33 +221,43 @@ class SendNewsletterView(View):
                 send_mail(
                     newsletter.message.subject,
                     newsletter.message.body_of_the_letter,
-                    EMAIL_HOST_USER,
+                    settings.EMAIL_HOST_USER,
                     [recipient.email],
                     fail_silently=False,
                 )
                 successful_recipients.append(recipient)
                 responses.append(f"Успешно: {recipient.email}")
             except Exception as e:
+                failed_recipients.append(recipient)
                 responses.append(f"Неуспешно: {recipient.email} - {str(e)}")
 
-        attempt.recipients.set(successful_recipients)  # Теперь это работает корректно
-        attempt.Mail_server_response = "\n".join(responses)
-
-        # Обновление статуса Newsletter
-        newsletter.status = "завершена"  # Статус всегда "Завершена"
-        newsletter.success = len(successful_recipients) == len(recipients)  # Успешность рассылки
-        newsletter.save()
-
-        attempt.status = newsletter.status
+        attempt.recipients.set(successful_recipients)
+        attempt.mail_server_response = "\n".join(responses)
+        attempt.status = "успешно" if len(failed_recipients) == 0 else "не успешно"
         attempt.save()
 
-        successful_count = len(successful_recipients)
-        failed_count = len(recipients) - successful_count
+        # Обновление статуса Newsletter
+        newsletter.status = "завершена"
+        newsletter.save()
+
+        # Обновление статистики пользователя
+        try:
+            user_stats, created = UserMailingStatistics.objects.get_or_create(user=newsletter.owner)
+            all_recipients = len(recipients)
+            successful_sent = len(successful_recipients)
+            failed_sent = all_recipients - successful_sent
+            user_stats.total_mailings += all_recipients
+            user_stats.successful_mailings += successful_sent
+            user_stats.failed_mailings += failed_sent
+            user_stats.save()
+
+        except Exception as e:
+            print(f"Ошибка обновления статистики: {e}") # Замените на надежное логирование
+
 
         return HttpResponse(
-            f"Рассылка завершена! Успешно: {successful_count}, Неуспешно: {failed_count}\nОтчеты:\n{attempt.Mail_server_response}"
+            f"Рассылка завершена! Успешно: {len(successful_recipients)}, Неуспешно: {len(failed_recipients)}\nОтчеты:\n{attempt.mail_server_response}"
         )
-
 
 class BlockMailingView(LoginRequiredMixin, View):
 
@@ -270,11 +281,7 @@ class UserMailingStatisticsView(View):
     def get(self, request):
         user_stats, created = UserMailingStatistics.objects.get_or_create(user=request.user)
 
-        # Обновляем статистику
-        user_stats.total_mailings = Newsletter.objects.filter(owner=request.user).count()
-        user_stats.successful_mailings = Newsletter.objects.filter(owner=request.user, success=True).count()
-        user_stats.failed_mailings = Newsletter.objects.filter(owner=request.user, success=False).count()
-        user_stats.save()  # Сохраняем изменения в объект UserMailingStatistics
+
 
         return render(request, "newapp/user_statistics.html", {"user_stats": user_stats})
 

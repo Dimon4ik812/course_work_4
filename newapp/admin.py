@@ -29,6 +29,6 @@ class NewsletterAdmin(admin.ModelAdmin):
 
 @admin.register(MailingAttempt)
 class MailingAttemptAdmin(admin.ModelAdmin):
-    list_display = ("id", "status", "Mail_server_response")
+    list_display = ("id", "status", "mail_server_response")
     list_filter = ("status",)
     search_fields = ("status",)

@@ -1,9 +1,8 @@
 import logging
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import BooleanField
+
 
 
 from users.models import CustomsUser
@@ -92,9 +91,9 @@ class MailingAttempt(models.Model):
 
     STATUS_CHOICES = [("успешно", "успешно"), ("не успешно", "не успешно")]
 
-    Date_and_time_of_attempt = models.DateTimeField(auto_now_add=True)
+    date_and_time_of_attempt = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
-    Mail_server_response = models.TextField(blank=True)  # Разрешаем пустое значение
+    mail_server_response = models.TextField(blank=True)  # Разрешаем пустое значение
     newsletter = models.ForeignKey(Newsletter, on_delete=models.CASCADE, related_name="attempts")
     recipients = models.ManyToManyField(MailingRecipient, blank=True)
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
@@ -105,7 +104,7 @@ class MailingAttempt(models.Model):
     class Meta:
         verbose_name = "Попытка"
         verbose_name_plural = "Попытки"
-        ordering = ["status", "Date_and_time_of_attempt"]
+        ordering = ["status", "date_and_time_of_attempt"]
         permissions = [
             ("can_view_all_mailings_attempts", "can view all mailings attempts"),
         ]
@@ -119,15 +118,12 @@ class UserMailingStatistics(models.Model):
     successful_mailings = models.IntegerField(default=0)
     failed_mailings = models.IntegerField(default=0)
 
-    def update_statistics(self):
-        self.total_mailings = Newsletter.objects.filter(owner=self.user).count()
-        self.successful_mailings = Newsletter.objects.filter(owner=self.user, status="success").count()
-        self.failed_mailings = Newsletter.objects.filter(
-            owner=self.user, status__in=["failed", "partially_success"]
-        ).count()
-        self.save()  # Удаляем save() из update_statistics
 
-    def __str__(self):
-        return f"Statistics for {self.user.username}"
-
+    def update_statistics(self, success):
+        self.total_mailings += 1
+        if success:
+            self.successful_mailings += 1
+        else:
+            self.failed_mailings += 1
+        self.save()
 
