@@ -1,0 +1,30 @@
+{% extends "newapp/base.html" %}
+{% load my_tags %}
+{% block content %}
+<div class="container custom-margin">
+    <h2>Статистика рассылок для {{ user_stats.user.username }}</h2>
+    <ul class="list-unstyled mt-4">
+        <li>Всего рассылок: {{ user_stats.total_mailings }}</li>
+        <li>Успешные рассылки: {{ user_stats.successful_mailings }}</li>
+        <li>Неуспешные рассылки: {{ user_stats.failed_mailings }}</li>
+    </ul>
+    <a href="{% url 'newapp:home' %}">Назад на главную страницу</a>
+</div>
+<div class="container custom-margin">
+    <h1>Детали пользователя: {{ user.username }}</h1>
+    <div class="user-details">
+        <img src="{{ user.avatar | media_filter }}" class="card-img-top" alt="avatar"
+             style="max-width: 150px; max-height: 150px; width: auto; height: auto;">
+
+        <ul>
+            <li><strong>Email:</strong> {{ user.email }}</li>
+            <li><strong>Имя:</strong> {{ user.first_name }}</li>
+            <li><strong>Номер телефона:</strong> {{ user.phone_number }}</li>
+            <li><strong>Страна:</strong> {{ user.country }}</li>
+        </ul>
+        <div class="card-body">
+            <a class="btn btn-primary" href="{% url 'users:change_password' %}">Изменить пароль</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

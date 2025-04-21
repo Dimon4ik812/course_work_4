@@ -1,0 +1,23 @@
+{% extends 'newapp/base.html'%}
+{% load my_tags %}
+{% block content %}
+    <div class="card text-center custom-margin">
+      <div class="card-header">
+        {{ newapp.message }}
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">Получатели:{{ newapp.recipients.all|join:", " }}</h5>
+        <p class="card-text">Статус:{{ newapp.status}}</p>
+          <p class="card-text">Дата первой отправки:{{ newapp.sent_date}}</p>
+          <p class="card-text">Дата окончания отправки: {{ newapp.end_of_sending}}</p>
+        <a href="{% url 'newapp:newsletter_list' %}" class="btn btn-primary">Вернуться</a>
+        {% if perms.spam.can_disable_mailings or user.is_staff %}
+                    {% if mailing.is_blocked %}
+        <a href="{% url 'newapp:newsletter_block' newapp.id %}" class="btn btn-danger">Разблокировать рассылку</a>
+        {% else %}
+        <a href="{% url 'newapp:newsletter_block' newapp.id %}" class="btn btn-danger">Заблокировать рассылку</a>
+        {% endif %}
+        {% endif %}
+      </div>
+    </div>
+{% endblock %}

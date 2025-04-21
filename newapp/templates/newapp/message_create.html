@@ -1,0 +1,14 @@
+{% extends 'newapp/base.html'%}
+{% load my_tags %}
+{% block content %}
+<div class="container mt-5">
+        <h1 class="mb-4 custom-margin">Создать сообщение</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <a href="{% url 'newapp:message_list' %}" class="btn btn-secondary">Отмена</a>
+        </form>
+</div>
+{% endblock %}
